@@ -9,7 +9,7 @@ This repository contains a plugin which provides the automatic Hazelcast member 
 
 ## Configuration
 
-The plugin supports **Members Discovery SPI** and **Zone Aware** features.
+The plugin supports **Members Discovery SPI** and **Zone Aware** features. 
 
 ### Hazelcast Members Discovery SPI
 
