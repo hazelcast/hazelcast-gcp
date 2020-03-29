@@ -84,7 +84,7 @@ class GcpClient {
         try {
             return fetchGcpAddresses();
         } catch (GcpConnectionException e) {
-            if (GcpConnectionException.S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE.equals(e.getMessage())) {
+            if (GcpConnectionException.S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE.equals(e.getGcpMessage())) {
                 LOGGER.severe(String.format("Your service account does not have permissions to access %s. "
                         + "Please ensure the API access scope for Compute Engine is at least read-only.", e.getUrl()), e);
                 throw e;

@@ -35,7 +35,7 @@ public class GcpConnectionException extends RuntimeException {
 
     private String domain;
     private String reason;
-    private String message;
+    private String gcpMessage;
     private int errorCode;
     private String url;
 
@@ -58,7 +58,7 @@ public class GcpConnectionException extends RuntimeException {
         JsonObject gcpError = gcpErrorList.get(0).asObject();
         this.domain = gcpError.get("domain").asString();
         this.reason = gcpError.get("reason").asString();
-        this.message = gcpError.get("message").asString();
+        this.gcpMessage = gcpError.get("message").asString();
         this.errorCode = gcpErrorJson.get("code").asInt();
     }
 
@@ -68,8 +68,8 @@ public class GcpConnectionException extends RuntimeException {
     public String getReason() {
         return this.reason;
     }
-    public String message() {
-        return this.message;
+    public String getGcpMessage() {
+        return this.gcpMessage;
     }
     public int getErrorCode() {
         return this.errorCode;
