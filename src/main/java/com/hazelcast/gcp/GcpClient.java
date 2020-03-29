@@ -80,6 +80,19 @@ class GcpClient {
     }
 
     List<GcpAddress> getAddresses() {
+        // First check to see if service account has proper permissions to fetch addresses - if not, don't retry call
+        try {
+            return fetchGcpAddresses();
+        } catch (GcpConnectionException e) {
+            if (GcpConnectionException.S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE.equals(e.getMessage())) {
+                LOGGER.severe(String.format("Your service account does not have permissions to access %s. "
+                        + "Please ensure the API access scope for Compute Engine is at least read-only.", e.getUrl()), e);
+                throw e;
+            }
+        } catch (Exception e) {
+            LOGGER.finest("Exception is not GcpConnectionException - proceeding to retry API call");
+        }
+
         return RetryUtils.retry(new Callable<List<GcpAddress>>() {
             @Override
             public List<GcpAddress> call() {

@@ -88,10 +88,11 @@ final class RestClient {
             }
 
             if (connection.getResponseCode() != HTTP_OK) {
-                throw new RestClientException(String.format("Failure executing: %s at: %s. Message: %s,", method, url,
-                        read(connection.getErrorStream())));
+                throw new GcpConnectionException(read(connection.getErrorStream()), url);
             }
             return read(connection.getInputStream());
+        } catch (GcpConnectionException e) {
+            throw e;
         } catch (Exception e) {
             throw new RestClientException("Failure in executing REST call", e);
         } finally {
