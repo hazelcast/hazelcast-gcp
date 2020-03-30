@@ -28,10 +28,14 @@ import com.hazelcast.internal.json.JsonValue;
 
 public class GcpConnectionException extends RuntimeException {
     /**
-     * Static error string that Google returns when there are insufficient permissions to access the Compute Engine via the API
+     * Static error string returned when there are insufficient permissions to access the Compute Engine via the API
      */
     public static final String S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE = "Insufficient Permission: "
             + "Request had insufficient authentication scopes.";
+    /**
+     * Static error string returned when service account doesn't have IAM role to access 'compute.instances.list'
+     */
+    public static final String S_GCP_ERROR_COMPUTE_INSTANCES_LIST = "Required 'compute.instances.list' permission for";
 
     private String domain;
     private String reason;
