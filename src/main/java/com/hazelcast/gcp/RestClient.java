@@ -88,7 +88,7 @@ final class RestClient {
             }
 
             if (connection.getResponseCode() != HTTP_OK) {
-                throw new GcpConnectionException(read(connection.getErrorStream()), url);
+                handleErrorStream(read(connection.getErrorStream()), method);
             }
             return read(connection.getInputStream());
         } catch (GcpConnectionException e) {
@@ -116,6 +116,15 @@ final class RestClient {
         Scanner scanner = new Scanner(stream, "UTF-8");
         scanner.useDelimiter("\\Z");
         return scanner.next();
+    }
+
+    private void handleErrorStream(String errorStream, String method) {
+        if (GcpConnectionException.getIsGcpConnectionException(errorStream)) {
+            throw new GcpConnectionException(errorStream, url);
+        }
+
+        throw new RestClientException(String.format("Failure executing: %s at: %s. Message: %s,", method, url,
+                errorStream));
     }
 
     private static final class Header {

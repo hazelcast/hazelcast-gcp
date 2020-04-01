@@ -20,6 +20,9 @@ import com.hazelcast.internal.json.JsonObject;
 import com.hazelcast.internal.json.JsonArray;
 import com.hazelcast.internal.json.JsonValue;
 
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
+
 /**
  * Exception to indicate an issue when pinging GCP API.
  *
@@ -36,6 +39,8 @@ public class GcpConnectionException extends RuntimeException {
      * Static error string returned when service account doesn't have IAM role to access 'compute.instances.list'
      */
     public static final String S_GCP_ERROR_COMPUTE_INSTANCES_LIST = "Required 'compute.instances.list' permission for";
+
+    private static final ILogger LOGGER = Logger.getLogger(GcpConnectionException.class);
 
     private String domain;
     private String reason;
@@ -80,6 +85,33 @@ public class GcpConnectionException extends RuntimeException {
     }
     public String getUrl() {
         return this.url;
+    }
+
+    public static Boolean getIsGcpConnectionException(String responseString) {
+        JsonValue gcpErrorValue = Json.parse(responseString).asObject().get("error");
+        if (gcpErrorValue != null) {
+            JsonArray gcpErrorList = toJsonArray(gcpErrorValue.asObject().get("errors"));
+            if (!gcpErrorList.isEmpty()) {
+                String gcpErrorMessage = gcpErrorList.get(0).asObject().get("message").asString();
+                if (gcpErrorMessage != null) {
+                    return Boolean.TRUE;
+                }
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    public void logErrorAndThrowException() {
+        if (GcpConnectionException.S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE.equals(getGcpMessage())) {
+            LOGGER.warning(String.format("Your service account does not have permissions to access %s. "
+                    + "Please ensure the API access scope for Compute Engine is at least read-only.", getUrl()), this);
+        } else if (getGcpMessage() != null
+                && getGcpMessage().startsWith(GcpConnectionException.S_GCP_ERROR_COMPUTE_INSTANCES_LIST)) {
+            LOGGER.warning("Your service account does not have permissions to access \"compute.instances.list\"."
+                    + " Please grant the missing IAM roles.", this);
+        }
+
+        throw this;
     }
 
     private static JsonArray toJsonArray(JsonValue jsonValue) {
