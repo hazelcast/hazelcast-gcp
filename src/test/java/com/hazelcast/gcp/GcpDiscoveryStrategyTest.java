@@ -109,7 +109,7 @@ public class GcpDiscoveryStrategyTest {
     }
 
     @Test
-    public void discoverNodes() {
+    public void discoverNodes() throws Exception {
         // given
         GcpAddress gcpInstance1 = new GcpAddress("192.168.1.15", "38.146.24.2");
         GcpAddress gcpInstance2 = new GcpAddress("192.168.1.16", "38.146.28.15");
@@ -143,7 +143,7 @@ public class GcpDiscoveryStrategyTest {
     }
 
     @Test
-    public void discoverNodesEmpty() {
+    public void discoverNodesEmpty() throws Exception {
         // given
         given(gcpClient.getAddresses()).willReturn(new ArrayList<GcpAddress>());
 
@@ -155,7 +155,7 @@ public class GcpDiscoveryStrategyTest {
     }
 
     @Test
-    public void discoverNodesException() {
+    public void discoverNodesException() throws Exception {
         // given
         given(gcpClient.getAddresses()).willThrow(new RuntimeException("Error while checking GCP instances"));
 

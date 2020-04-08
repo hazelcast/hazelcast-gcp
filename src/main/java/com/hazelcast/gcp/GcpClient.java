@@ -18,6 +18,7 @@ package com.hazelcast.gcp;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -79,25 +80,29 @@ class GcpClient {
         }, RETRIES));
     }
 
-    List<GcpAddress> getAddresses() {
+    List<GcpAddress> getAddresses() throws Exception {
         // First check to see if service account has proper permissions to fetch addresses - if not, don't retry call
         try {
             return fetchGcpAddresses();
         } catch (GcpConnectionException e) {
+            // Don't retry call if method throws GcpConnectionException
             e.logErrorAndThrowException();
+        } catch (FileNotFoundException e) {
+            // Don't retry call if private key file not found
+            throw e;
         } catch (Exception e) {
             LOGGER.finest("Exception is not GcpConnectionException - proceeding to retry API call");
         }
 
         return RetryUtils.retry(new Callable<List<GcpAddress>>() {
             @Override
-            public List<GcpAddress> call() {
+            public List<GcpAddress> call() throws Exception {
                 return fetchGcpAddresses();
             }
         }, RETRIES);
     }
 
-    private List<GcpAddress> fetchGcpAddresses() {
+    private List<GcpAddress> fetchGcpAddresses() throws Exception {
         LOGGER.finest("Fetching OAuth Access Token");
         final String accessToken = fetchAccessToken();
 
@@ -114,7 +119,7 @@ class GcpClient {
         return result;
     }
 
-    private String fetchAccessToken() {
+    private String fetchAccessToken() throws FileNotFoundException {
         if (privateKeyPath != null) {
             return gcpAuthenticator.refreshAccessToken(privateKeyPath);
         }
