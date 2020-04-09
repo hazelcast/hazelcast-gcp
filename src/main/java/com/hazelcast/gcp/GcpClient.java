@@ -66,7 +66,8 @@ class GcpClient {
             if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
                 LOGGER.warning("Project name could not be retrieved. Please grant permissions "
                         + "to this service account if running from within the GCP network, "
-                        + "or specify the project name in the configuration if running from outside your GCP hazelcast cluster.");
+                        + "or specify the project name in the configuration if running from outside the GCP network "
+                        + "where your hazelcast cluster is.");
                 throw new RuntimeException("Project could not be retrieved from GCP metadata API");
             }
 
@@ -88,6 +89,23 @@ class GcpClient {
             return gcpConfig.getZones();
         }
         LOGGER.finest("Property 'zones' not configured, fetching the current GCP zone");
+
+        try {
+            String currentZone = gcpMetadataApi.currentZone();
+
+            if ("html>".equals(currentZone)) {
+                LOGGER.warning("Zone could not be retrieved. Please grant permissions "
+                        + "to this service account if running from within the GCP network, "
+                        + "or specify the zone in the configuration if running from outside the GCP network "
+                        + "where your hazelcast cluster is.");
+                throw new RuntimeException("Zone could not be retrieved from GCP metadata API");
+            }
+
+            return singletonList(currentZone);
+        } catch (Exception e) {
+            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
+        }
+
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {

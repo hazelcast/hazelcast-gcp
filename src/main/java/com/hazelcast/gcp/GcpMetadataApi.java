@@ -71,7 +71,8 @@ class GcpMetadataApi {
         } catch (ParseException e) {
             LOGGER.warning("Unable to retrieve access token. "
                     + "Please grant permissions to this service account if running from within the GCP network, "
-                    + "or specify the private key file path if running from outside your GCP hazelcast cluster.");
+                    + "or specify the private key file path if running from outside the GCP network "
+                    + "where your hazelcast cluster is.");
             throw e;
         }
     }
