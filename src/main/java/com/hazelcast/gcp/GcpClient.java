@@ -59,6 +59,22 @@ class GcpClient {
             return gcpConfig.getProjects();
         }
         LOGGER.finest("Property 'projects' not configured, fetching the current GCP project");
+
+        try {
+            String projectFromMetadataApi = gcpMetadataApi.currentProject();
+            // Check if valid project was retrieved
+            if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
+                LOGGER.warning("Project name could not be retrieved. Please grant permissions "
+                        + "to this service account if running from within the GCP network, "
+                        + "or specify the project name in the configuration if running from outside your GCP hazelcast cluster.");
+                throw new RuntimeException("Project could not be retrieved from GCP metadata API");
+            }
+
+            return singletonList(projectFromMetadataApi);
+        } catch (Exception e) {
+            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
+        }
+
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
@@ -91,7 +107,7 @@ class GcpClient {
             // Don't retry call if private key file not found
             throw e;
         } catch (Exception e) {
-            LOGGER.finest("Exception is not GcpConnectionException - proceeding to retry API call");
+            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
         }
 
         return RetryUtils.retry(new Callable<List<GcpAddress>>() {

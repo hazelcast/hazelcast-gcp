@@ -16,6 +16,9 @@
 package com.hazelcast.gcp;
 
 import com.hazelcast.internal.json.Json;
+import com.hazelcast.internal.json.ParseException;
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 
 /**
  * Responsible for connecting to the Google Cloud Instance Metadata API.
@@ -23,6 +26,8 @@ import com.hazelcast.internal.json.Json;
  * @see <a href="https://cloud.google.com/appengine/docs/standard/java/accessing-instance-metadata">GCP Instance Metatadata</a>
  */
 class GcpMetadataApi {
+    private static final ILogger LOGGER = Logger.getLogger(GcpMetadataApi.class);
+
     private static final String METADATA_ENDPOINT = "http://metadata.google.internal";
 
     private final String endpoint;
@@ -61,7 +66,14 @@ class GcpMetadataApi {
     }
 
     private static String extractAccessToken(String accessTokenResponse) {
-        return Json.parse(accessTokenResponse).asObject().get("access_token").asString();
+        try {
+            return Json.parse(accessTokenResponse).asObject().get("access_token").asString();
+        } catch (ParseException e) {
+            LOGGER.warning("Unable to retrieve access token. "
+                    + "Please grant permissions to this service account if running from within the GCP network, "
+                    + "or specify the private key file path if running from outside your GCP hazelcast cluster.");
+            throw e;
+        }
     }
 
     private static String callGet(String urlString) {
