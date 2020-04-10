@@ -65,7 +65,7 @@ class GcpAuthenticator {
             String response = callService(body);
             return parseResponse(response);
         } catch (FileNotFoundException e) {
-            LOGGER.warning("Private key json file not found. "
+            LOGGER.severe("Private key json file not found. "
                     + "Please ensure you have stored the json file at the specified file path.");
             throw e;
         } catch (Exception e) {

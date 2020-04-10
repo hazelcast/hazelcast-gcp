@@ -64,7 +64,7 @@ class GcpClient {
             String projectFromMetadataApi = gcpMetadataApi.currentProject();
             // Check if valid project was retrieved
             if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
-                LOGGER.warning("Project name could not be retrieved. Please grant permissions "
+                LOGGER.severe("Project name could not be retrieved. Please grant permissions "
                         + "to this service account if running from within the GCP network, "
                         + "or specify the project name in the configuration if running from outside the GCP network "
                         + "where your hazelcast cluster is.");
@@ -94,7 +94,7 @@ class GcpClient {
             String currentZone = gcpMetadataApi.currentZone();
 
             if ("html>".equals(currentZone)) {
-                LOGGER.warning("Zone could not be retrieved. Please grant permissions "
+                LOGGER.severe("Zone could not be retrieved. Please grant permissions "
                         + "to this service account if running from within the GCP network, "
                         + "or specify the zone in the configuration if running from outside the GCP network "
                         + "where your hazelcast cluster is.");
