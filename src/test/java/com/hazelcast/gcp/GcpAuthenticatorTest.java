@@ -20,8 +20,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -47,7 +45,7 @@ public class GcpAuthenticatorTest {
     }
 
     @Test
-    public void refreshAccessToken() throws FileNotFoundException {
+    public void refreshAccessToken() {
         // given
         stubFor(post("/")
                 .withRequestBody(matching(START_OF_REQUEST_BODY + ".*"))

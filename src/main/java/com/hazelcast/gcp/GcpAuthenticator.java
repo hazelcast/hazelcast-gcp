@@ -55,19 +55,19 @@ class GcpAuthenticator {
         this.endpoint = endpoint;
     }
 
-    String refreshAccessToken(String privateKeyPath) throws FileNotFoundException {
+    String refreshAccessToken(String privateKeyPath) {
         return refreshAccessToken(privateKeyPath, System.currentTimeMillis());
     }
 
-    String refreshAccessToken(String privateKeyPath, long currentTimeMs) throws FileNotFoundException {
+    String refreshAccessToken(String privateKeyPath, long currentTimeMs) {
         try {
             String body = createBody(privateKeyPath, currentTimeMs);
             String response = callService(body);
             return parseResponse(response);
         } catch (FileNotFoundException e) {
-            LOGGER.severe("Private key json file not found. "
-                    + "Please ensure you have stored the json file at the specified file path.");
-            throw e;
+            LOGGER.severe(String.format("Private key json file not found. Please ensure you have stored the json file"
+                    + " at the specified file path: %s", privateKeyPath));
+            throw new HazelcastException("Private key json file not found", e);
         } catch (Exception e) {
             throw new HazelcastException("Error while fetching access token from Google API", e);
         }

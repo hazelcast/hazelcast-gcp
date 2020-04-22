@@ -18,11 +18,11 @@ package com.hazelcast.gcp;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -32,6 +32,7 @@ class GcpClient {
     private static final ILogger LOGGER = Logger.getLogger(GcpDiscoveryStrategy.class);
 
     private static final int RETRIES = 10;
+    private static final List<String> NON_RETRYABLE_KEYWORDS = asList("Private key json file not found");
 
     private final GcpMetadataApi gcpMetadataApi;
     private final GcpComputeApi gcpComputeApi;
@@ -115,25 +116,19 @@ class GcpClient {
     }
 
     List<GcpAddress> getAddresses() throws Exception {
-        // First check to see if service account has proper permissions to fetch addresses - if not, don't retry call
         try {
-            return fetchGcpAddresses();
+            return RetryUtils.retry(new Callable<List<GcpAddress>>() {
+                @Override
+                public List<GcpAddress> call() throws Exception {
+                    return fetchGcpAddresses();
+                }
+            }, RETRIES, NON_RETRYABLE_KEYWORDS);
         } catch (GcpConnectionException e) {
-            // Don't retry call if method throws GcpConnectionException
-            e.logErrorAndThrowException();
-        } catch (FileNotFoundException e) {
-            // Don't retry call if private key file not found
-            throw e;
-        } catch (Exception e) {
-            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
-        }
-
-        return RetryUtils.retry(new Callable<List<GcpAddress>>() {
-            @Override
-            public List<GcpAddress> call() throws Exception {
-                return fetchGcpAddresses();
+            if (e.getMessage() != null) {
+                LOGGER.severe(e.getMessage(), e);
             }
-        }, RETRIES);
+        }
+        return null;
     }
 
     private List<GcpAddress> fetchGcpAddresses() throws Exception {
@@ -153,7 +148,7 @@ class GcpClient {
         return result;
     }
 
-    private String fetchAccessToken() throws FileNotFoundException {
+    private String fetchAccessToken() {
         if (privateKeyPath != null) {
             return gcpAuthenticator.refreshAccessToken(privateKeyPath);
         }
