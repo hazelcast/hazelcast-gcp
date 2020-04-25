@@ -60,7 +60,7 @@ public class GcpClientTest {
     }
 
     @Test
-    public void getAddressesCurrentProjectCurrentZoneNoLabel() throws Exception {
+    public void getAddressesCurrentProjectCurrentZoneNoLabel() {
         // given
         Label label = null;
         given(gcpComputeApi.instances(CURRENT_PROJECT, CURRENT_ZONE, label, ACCESS_TOKEN)).willReturn(ADDRESSES);
@@ -76,7 +76,7 @@ public class GcpClientTest {
     }
 
     @Test
-    public void getAddressesCurrentProjectCurrentZoneWithLabel() throws Exception {
+    public void getAddressesCurrentProjectCurrentZoneWithLabel() {
         // given
         Label label = new Label("application=hazelcast");
         given(gcpComputeApi.instances(CURRENT_PROJECT, CURRENT_ZONE, label, ACCESS_TOKEN)).willReturn(ADDRESSES);
@@ -92,7 +92,7 @@ public class GcpClientTest {
     }
 
     @Test
-    public void getAddressesMultipleProjectsMultipleZones() throws Exception {
+    public void getAddressesMultipleProjectsMultipleZones() {
         // given
         Label label = new Label("application=hazelcast");
         given(gcpComputeApi.instances(PROJECT_1, ZONE_1, label, ACCESS_TOKEN)).willReturn(asList(ADDRESS_1));
@@ -115,7 +115,7 @@ public class GcpClientTest {
     }
 
     @Test
-    public void getAddressesWithPrivateKeyPath() throws Exception {
+    public void getAddressesWithPrivateKeyPath() {
         // given
         given(gcpMetadataApi.accessToken()).willReturn(null);
         given(gcpAuthenticator.refreshAccessToken(PRIVATE_KEY_PATH)).willReturn(ACCESS_TOKEN);

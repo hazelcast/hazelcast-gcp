@@ -47,7 +47,7 @@ public class GcpConnectionExceptionTest {
             "}";
 
     @Test
-    public void testSetFromJson() throws Exception {
+    public void testSetFromJson() {
         GcpConnectionException gcpException = new GcpConnectionException(gcpConnectionExceptionJson);
         assertEquals(gcpException.getDomain(), gcpDomain);
         assertEquals(gcpException.getReason(), gcpReason);
@@ -55,7 +55,7 @@ public class GcpConnectionExceptionTest {
     }
 
     @Test
-    public void testIsGcpConnectionException() throws Exception {
+    public void testIsGcpConnectionException() {
         assertTrue(GcpConnectionException.getIsGcpConnectionException(gcpConnectionExceptionJson));
         assertFalse(GcpConnectionException.getIsGcpConnectionException(restClientExceptionJson));
     }
