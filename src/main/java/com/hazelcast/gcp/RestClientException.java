@@ -20,11 +20,22 @@ package com.hazelcast.gcp;
  */
 class RestClientException
         extends RuntimeException {
+    private String url;
+
     RestClientException(String message) {
         super(message);
     }
 
     RestClientException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    RestClientException(String message, String url) {
+        super(message);
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

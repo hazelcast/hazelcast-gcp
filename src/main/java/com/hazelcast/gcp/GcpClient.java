@@ -148,7 +148,7 @@ class GcpClient {
                 } catch (RestClientException e) {
                     // Parse exception message and convert to GcpConnectionException if it should be of this type
                     if (GcpConnectionException.getIsGcpConnectionException(e.getMessage())) {
-                        throw new GcpConnectionException(e.getMessage());
+                        throw new GcpConnectionException(e.getMessage(), e.getUrl());
                     }
                     throw e;
                 }

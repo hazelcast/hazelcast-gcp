@@ -88,7 +88,7 @@ final class RestClient {
             }
 
             if (connection.getResponseCode() != HTTP_OK) {
-                throw new RestClientException(read(connection.getErrorStream()));
+                throw new RestClientException(read(connection.getErrorStream()), url);
             }
             return read(connection.getInputStream());
         } catch (RestClientException e) {
