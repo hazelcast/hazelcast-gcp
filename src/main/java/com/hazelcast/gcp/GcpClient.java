@@ -15,6 +15,7 @@
 
 package com.hazelcast.gcp;
 
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 
@@ -33,7 +34,8 @@ class GcpClient {
 
     private static final int RETRIES = 10;
     private static final List<String> NON_RETRYABLE_KEYWORDS = asList("Private key json file not found",
-            "Your service account does not have permissions");
+            "Your service account does not have permissions", "Project could not be retrieved",
+            "Zone could not be retrieved");
 
     private final GcpMetadataApi gcpMetadataApi;
     private final GcpComputeApi gcpComputeApi;
@@ -62,28 +64,20 @@ class GcpClient {
         }
         LOGGER.finest("Property 'projects' not configured, fetching the current GCP project");
 
-        try {
-            String projectFromMetadataApi = gcpMetadataApi.currentProject();
-            // Check if valid project was retrieved
-            if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
-                LOGGER.severe("Project name could not be retrieved. Please grant permissions "
-                        + "to this service account if running from within the GCP network, "
-                        + "or specify the project name in the configuration if running from outside the GCP network "
-                        + "where your hazelcast cluster is.");
-                throw new RuntimeException("Project could not be retrieved from GCP metadata API");
-            }
-
-            return singletonList(projectFromMetadataApi);
-        } catch (Exception e) {
-            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
-        }
-
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
-                return gcpMetadataApi.currentProject();
+                String projectFromMetadataApi = gcpMetadataApi.currentProject();
+                // Check if valid project was retrieved
+                if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
+                    LOGGER.severe("Project name could not be retrieved. Please specify the project name in the "
+                            + "configuration if running from outside the GCP network where your hazelcast cluster is.");
+                    throw new HazelcastException("Project could not be retrieved from GCP config");
+                }
+
+                return projectFromMetadataApi;
             }
-        }, RETRIES));
+        }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
 
     private List<String> zonesFromConfigOrMetadataApi(final GcpConfig gcpConfig) {
@@ -92,28 +86,20 @@ class GcpClient {
         }
         LOGGER.finest("Property 'zones' not configured, fetching the current GCP zone");
 
-        try {
-            String currentZone = gcpMetadataApi.currentZone();
-
-            if ("html>".equals(currentZone)) {
-                LOGGER.severe("Zone could not be retrieved. Please grant permissions "
-                        + "to this service account if running from within the GCP network, "
-                        + "or specify the zone in the configuration if running from outside the GCP network "
-                        + "where your hazelcast cluster is.");
-                throw new RuntimeException("Zone could not be retrieved from GCP metadata API");
-            }
-
-            return singletonList(currentZone);
-        } catch (Exception e) {
-            LOGGER.finest("Exception is not a known error - proceeding to retry API call");
-        }
-
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
-                return gcpMetadataApi.currentZone();
+                String currentZone = gcpMetadataApi.currentZone();
+                // Check if valid zone was retrieved
+                if ("html>".equals(currentZone)) {
+                    LOGGER.severe("Zone could not be retrieved. Please specify the zone in the configuration "
+                            + "if running from outside the GCP network where your hazelcast cluster is.");
+                    throw new HazelcastException("Zone could not be retrieved from GCP config");
+                }
+
+                return currentZone;
             }
-        }, RETRIES));
+        }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
 
     List<GcpAddress> getAddresses() {
