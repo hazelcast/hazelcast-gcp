@@ -126,7 +126,7 @@ class GcpClient {
             }, RETRIES, NON_RETRYABLE_KEYWORDS);
         } catch (GcpConnectionException e) {
             if (e.getMessage() != null) {
-                LOGGER.severe(e.getMessage(), e);
+                LOGGER.severe(e.getMessage());
             }
         }
         return null;
