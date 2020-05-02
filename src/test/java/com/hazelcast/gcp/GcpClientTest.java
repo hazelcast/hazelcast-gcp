@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -34,6 +35,7 @@ public class GcpClientTest {
     private static final String PROJECT_1 = "project-2";
     private static final String PROJECT_2 = "project-3";
     private static final String CURRENT_ZONE = "us-east1-a";
+    private static final String CURRENT_REGION = "us-east1";
     private static final String ZONE_1 = "us-east1-b";
     private static final String ZONE_2 = "us-east1-c";
     private static final String ACCESS_TOKEN = "ya29.c.Elr6BVAeC2CeahNthgBf6Nn8j66IfIfZV6eb0LTkDeoAzELseUL5pFmfq0K_ViJN8BaeVB6b16NNCiPB0YbWPnoHRC2I1ghmnknUTzL36t-79b_OitEF_q_C1GM";
@@ -56,7 +58,9 @@ public class GcpClientTest {
     public void setUp() {
         when(gcpMetadataApi.currentProject()).thenReturn(CURRENT_PROJECT);
         when(gcpMetadataApi.currentZone()).thenReturn(CURRENT_ZONE);
+        when(gcpMetadataApi.currentRegion()).thenReturn(CURRENT_REGION);
         when(gcpMetadataApi.accessToken()).thenReturn(ACCESS_TOKEN);
+        when(gcpComputeApi.zones(CURRENT_PROJECT, CURRENT_REGION, ACCESS_TOKEN)).thenReturn(asList(CURRENT_ZONE, ZONE_1, ZONE_2));
     }
 
     @Test

@@ -90,13 +90,13 @@ config.getNetworkConfig().getJoin().getGcpConfig().setEnabled(true)
 The following properties can be configured:
 * `private-key-path`: a filesystem path to the private key for GCP service account in the JSON format; if not set, the access token is fetched from the GCP VM instance
 * `projects`: a list of projects where the plugin looks for instances; if not set, the current project is used
-* `zones`: a list of zones where the plugin looks for instances; if not set, the current zone is used
+* `zones`: a list of zones where the plugin looks for instances; if not set, all zones of the current region are used
 * `label`: a filter to look only for instances labeled as specified; property format: `key=value`
 * `hz-port`: a range of ports where the plugin looks for Hazelcast members; if not set, the default value `5701-5708` is used
 
 Note that:
 * Your GCP Service Account must have permissions to query for all the projects/zones specified in the configuration
-* If you don't specify any of the properties, then the plugin forms a cluster from all Hazelcast members running in the current project, in the current zone
+* If you don't specify any of the properties, then the plugin forms a cluster from all Hazelcast members running in the current project, in the current region
 * If you use the plugin in the Hazelcast Client running outside of the GCP network, then the following parameters are mandatory: `private-key-path`, `projects`, and `zones`
 
 ### Zone Aware
