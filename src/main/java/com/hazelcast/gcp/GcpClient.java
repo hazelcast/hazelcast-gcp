@@ -67,19 +67,27 @@ class GcpClient {
     }
 
     private List<String> zonesFromConfigOrComputeApi(final GcpConfig gcpConfig) {
+        if (gcpConfig.getRegion() != null) {
+            LOGGER.finest("Property 'region' configured, fetching GCP zones of the specified GCP region");
+            return RetryUtils.retry(new Callable<List<String>>() {
+                @Override
+                public List<String> call() {
+                    String region = gcpMetadataApi.currentRegion();
+                    return fetchZones(region);
+                }
+            }, RETRIES);
+        }
+
         if (!gcpConfig.getZones().isEmpty()) {
             return gcpConfig.getZones();
         }
+
         LOGGER.finest("Property 'zones' not configured, fetching GCP zones of the current GCP region");
         return RetryUtils.retry(new Callable<List<String>>() {
             @Override
             public List<String> call() {
                 String region = gcpMetadataApi.currentRegion();
-                List<String> zones = new ArrayList<>();
-                for (String project : projects) {
-                    zones.addAll(gcpComputeApi.zones(project, region, fetchAccessToken()));
-                }
-                return zones;
+                return fetchZones(region);
             }
         }, RETRIES);
     }
@@ -91,6 +99,14 @@ class GcpClient {
                 return fetchGcpAddresses();
             }
         }, RETRIES);
+    }
+
+    private List<String> fetchZones(String region) {
+        List<String> zones = new ArrayList<>();
+        for (String project : projects) {
+            zones.addAll(gcpComputeApi.zones(project, region, fetchAccessToken()));
+        }
+        return zones;
     }
 
     private List<GcpAddress> fetchGcpAddresses() {

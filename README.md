@@ -135,6 +135,7 @@ If Hazelcast Client is run inside GCP, then the configuration is exactly the sam
 If Hazelcast Client is run outside GCP, then you always need to specify the following parameters:
 - `private-key-path` - path to the private key for GCP service account
 - `projects` - a list of projects where the plugin looks for instances
+- `region`: a region where the plugin looks for instances (ff not specified, then the plugin uses "zones" property)
 - `zones`: a list of zones where the plugin looks for instances
 - `use-public-ip` - must be set to `true`
 
@@ -148,7 +149,7 @@ Following are example declarative and programmatic configuration snippets.
     <gcp enabled="true">
       <private-key-path>/home/name/service/account/key.json</private-key-path>
       <projects>project-1,project-2</projects>
-      <zones>us-east1-a,us-east1-b</zones>
+      <region>us-east1</region>
       <label>application=hazelcast</label>
       <hz-port>5701-5708</hz-port>
       <use-public-ip>true</use-public-ip>
@@ -166,7 +167,7 @@ hazelcast-client:
       enabled: true
       private-key-path: /home/name/service/account/key.json
       projects: project-1,project-2
-      zones: us-east1-a,us-east1-b
+      region: us-east1
       label: application=hazelcast
       hz-port: 5701-5708
       use-public-ip: true
@@ -177,7 +178,7 @@ hazelcast-client:
 clientConfig.getGcpConfig().setEnabled(true)
       .setProperty("private-key-path", "/home/name/service/account/key.json")
       .setProperty("projects", "project-1,project-2")
-      .setProperty("zones", "us-east1-a,us-east1-b")
+      .setProperty("region", "us-east1")
       .setProperty("label", "application=hazelcast")
       .setProperty("hz-port", "5701-5708")
       .setProperty("use-public-ip", "true");
