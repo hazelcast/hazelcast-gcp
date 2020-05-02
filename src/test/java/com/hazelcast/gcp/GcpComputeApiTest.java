@@ -30,7 +30,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class GcpComputeApiTest {
     private static final String PROJECT = "project1";
@@ -86,8 +85,10 @@ public class GcpComputeApiTest {
         List<String> zones = gcpComputeApi.zones(PROJECT, REGION, ACCESS_TOKEN);
 
         // then
-        System.out.println(zones);
-        assertTrue(!zones.isEmpty());
+        String zoneA = REGION + "-a";
+        String zoneB = REGION + "-b";
+        String zoneC = REGION + "-c";
+        assertEquals(asList(zoneA, zoneB, zoneC), zones);
     }
 
     @Test

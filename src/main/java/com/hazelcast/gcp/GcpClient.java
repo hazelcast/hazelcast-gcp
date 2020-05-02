@@ -72,8 +72,7 @@ class GcpClient {
             return RetryUtils.retry(new Callable<List<String>>() {
                 @Override
                 public List<String> call() {
-                    String region = gcpMetadataApi.currentRegion();
-                    return fetchZones(region);
+                    return fetchZones(gcpConfig.getRegion());
                 }
             }, RETRIES);
         }
