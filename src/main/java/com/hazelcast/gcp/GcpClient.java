@@ -67,15 +67,7 @@ class GcpClient {
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
-                String projectFromMetadataApi = gcpMetadataApi.currentProject();
-                // Check if valid project was retrieved
-                if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
-                    LOGGER.severe("Project name could not be retrieved. Please specify the project name in the "
-                            + "configuration if running from outside the GCP network where your hazelcast cluster is.");
-                    throw new HazelcastException("Project could not be retrieved from GCP config");
-                }
-
-                return projectFromMetadataApi;
+                return validateRetrievedProject(gcpMetadataApi.currentProject());
             }
         }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
@@ -89,15 +81,7 @@ class GcpClient {
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
-                String currentZone = gcpMetadataApi.currentZone();
-                // Check if valid zone was retrieved
-                if ("html>".equals(currentZone)) {
-                    LOGGER.severe("Zone could not be retrieved. Please specify the zone in the configuration "
-                            + "if running from outside the GCP network where your hazelcast cluster is.");
-                    throw new HazelcastException("Zone could not be retrieved from GCP config");
-                }
-
-                return currentZone;
+                return validateRetrievedZone(gcpMetadataApi.currentZone());
             }
         }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
@@ -114,8 +98,8 @@ class GcpClient {
             if (e.getMessage() != null) {
                 LOGGER.severe(e.getMessage());
             }
+            throw e;
         }
-        return null;
     }
 
     private List<GcpAddress> fetchGcpAddresses() {
@@ -152,5 +136,23 @@ class GcpClient {
 
     String getAvailabilityZone() {
         return gcpMetadataApi.currentZone();
+    }
+
+    private String validateRetrievedProject(String projectFromMetadataApi) {
+        if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
+            LOGGER.severe("Project name could not be retrieved. Please specify the 'projects' property if running "
+                    + "from outside GCP network");
+            throw new HazelcastException("Project could not be retrieved from GCP config");
+        }
+        return projectFromMetadataApi;
+    }
+
+    private String validateRetrievedZone(String zoneFromMetadataApi) {
+        if ("html>".equals(zoneFromMetadataApi)) {
+            LOGGER.severe("Zone could not be retrieved. Please specify the 'zones' property if running from outside "
+                    + "GCP network");
+            throw new HazelcastException("Zone could not be retrieved from GCP config");
+        }
+        return zoneFromMetadataApi;
     }
 }
