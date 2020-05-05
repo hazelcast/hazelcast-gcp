@@ -138,7 +138,7 @@ class GcpClient {
         return gcpMetadataApi.currentZone();
     }
 
-    private String validateRetrievedProject(String projectFromMetadataApi) {
+    String validateRetrievedProject(String projectFromMetadataApi) {
         if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
             LOGGER.severe("Project name could not be retrieved. Please specify the 'projects' property if running "
                     + "from outside GCP network");
@@ -147,7 +147,7 @@ class GcpClient {
         return projectFromMetadataApi;
     }
 
-    private String validateRetrievedZone(String zoneFromMetadataApi) {
+    String validateRetrievedZone(String zoneFromMetadataApi) {
         if ("html>".equals(zoneFromMetadataApi)) {
             LOGGER.severe("Zone could not be retrieved. Please specify the 'zones' property if running from outside "
                     + "GCP network");

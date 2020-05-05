@@ -15,6 +15,7 @@
 
 package com.hazelcast.gcp;
 
+import com.hazelcast.core.HazelcastException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +39,8 @@ public class GcpClientTest {
     private static final String ZONE_2 = "us-east1-c";
     private static final String ACCESS_TOKEN = "ya29.c.Elr6BVAeC2CeahNthgBf6Nn8j66IfIfZV6eb0LTkDeoAzELseUL5pFmfq0K_ViJN8BaeVB6b16NNCiPB0YbWPnoHRC2I1ghmnknUTzL36t-79b_OitEF_q_C1GM";
     private static final String PRIVATE_KEY_PATH = "/sample/filesystem/path";
+    private static final String INVALID_PROJECT_FROM_METADATA_API = "<!DOCTYPE html>";
+    private static final String INVALID_ZONE_FROM_METADATA_API = "html>";
 
     private static final GcpAddress ADDRESS_1 = new GcpAddress("10.240.0.2", "35.207.0.219");
     private static final GcpAddress ADDRESS_2 = new GcpAddress("10.240.0.3", "35.237.227.147");
@@ -143,6 +146,58 @@ public class GcpClientTest {
 
         // then
         assertEquals(ZONE_1, result);
+    }
+
+    @Test
+    public void validateRetrievedProject() {
+        // given
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        String retrievedProject = gcpClient.validateRetrievedProject(PROJECT_1);
+
+        // then
+        assertEquals(PROJECT_1, retrievedProject);
+    }
+
+    @Test(expected = HazelcastException.class)
+    public void validateInvalidRetrievedProject() {
+        // given
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        gcpClient.validateRetrievedProject(INVALID_PROJECT_FROM_METADATA_API);
+
+        // then
+        // throws exception
+    }
+
+    @Test
+    public void validateRetrievedZone() {
+        // given
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        String retrievedZone = gcpClient.validateRetrievedZone(ZONE_1);
+
+        // then
+        assertEquals(ZONE_1, retrievedZone);
+    }
+
+    @Test(expected = HazelcastException.class)
+    public void validateInvalidRetrievedZone() {
+        // given
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        gcpClient.validateRetrievedZone(INVALID_ZONE_FROM_METADATA_API);
+
+        // then
+        // throws exception
     }
 
 }
