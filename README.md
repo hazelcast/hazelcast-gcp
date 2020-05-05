@@ -53,7 +53,6 @@ Make sure you have the `hazelcast-gcp.jar` dependency in your classpath. Then, y
     <join>
       <multicast enabled="false"/>
       <gcp enabled="true">
-        <zones>us-east1-a,us-east1-b</zones>
         <label>application=hazelcast</label>
         <hz-port>5701-5708</hz-port>
       </gcp>
@@ -72,7 +71,6 @@ hazelcast:
         enabled: false
       gcp:
         enabled: true
-        zones: us-east1-a,us-east1-b
         label: application=hazelcast
         hz-port: 5701-5708
 ```
@@ -82,7 +80,6 @@ hazelcast:
 ```java
 config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 config.getNetworkConfig().getJoin().getGcpConfig().setEnabled(true)
-      .setProperty("zones", "us-east1-a,us-east1-b")
       .setProperty("label", "application=hazelcast")
       .setProperty("hz-port", "5701-5708");
 ```
@@ -90,6 +87,7 @@ config.getNetworkConfig().getJoin().getGcpConfig().setEnabled(true)
 The following properties can be configured:
 * `private-key-path`: a filesystem path to the private key for GCP service account in the JSON format; if not set, the access token is fetched from the GCP VM instance
 * `projects`: a list of projects where the plugin looks for instances; if not set, the current project is used
+- `region`: a region where the plugin looks for instances; if not set, the `zones` property is used; if it and `zones` property not set, all zones of the current region are used 
 * `zones`: a list of zones where the plugin looks for instances; if not set, all zones of the current region are used
 * `label`: a filter to look only for instances labeled as specified; property format: `key=value`
 * `hz-port`: a range of ports where the plugin looks for Hazelcast members; if not set, the default value `5701-5708` is used
@@ -97,7 +95,7 @@ The following properties can be configured:
 Note that:
 * Your GCP Service Account must have permissions to query for all the projects/zones specified in the configuration
 * If you don't specify any of the properties, then the plugin forms a cluster from all Hazelcast members running in the current project, in the current region
-* If you use the plugin in the Hazelcast Client running outside of the GCP network, then the following parameters are mandatory: `private-key-path`, `projects`, and `zones`
+* If you use the plugin in the Hazelcast Client running outside of the GCP network, then the following parameters are mandatory: `private-key-path`, `projects`, and `zones` or `region`
 
 ### Zone Aware
 
@@ -135,8 +133,8 @@ If Hazelcast Client is run inside GCP, then the configuration is exactly the sam
 If Hazelcast Client is run outside GCP, then you always need to specify the following parameters:
 - `private-key-path` - path to the private key for GCP service account
 - `projects` - a list of projects where the plugin looks for instances
-- `region`: a region where the plugin looks for instances (ff not specified, then the plugin uses "zones" property)
-- `zones`: a list of zones where the plugin looks for instances
+- `region`: a region where the plugin looks for instances; if not set, the `zones` property is used; if it and `zones` property not set, all zones of the current region are used 
+- `zones`: a list of zones where the plugin looks for instances; if not set, all zones of the current region are used
 - `use-public-ip` - must be set to `true`
 
 Following are example declarative and programmatic configuration snippets.

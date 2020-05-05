@@ -102,8 +102,9 @@ class GcpClient {
 
     private List<String> fetchZones(String region) {
         List<String> zones = new ArrayList<>();
+        String accessToken = fetchAccessToken();
         for (String project : projects) {
-            zones.addAll(gcpComputeApi.zones(project, region, fetchAccessToken()));
+            zones.addAll(gcpComputeApi.zones(project, region, accessToken));
         }
         return zones;
     }
