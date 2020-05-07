@@ -91,7 +91,7 @@ class GcpClient {
             @Override
             public List<String> call() {
                 String region = gcpMetadataApi.currentRegion();
-                return validateRetrievedZone(fetchZones(region));
+                return validateRetrievedZones(fetchZones(region));
             }
         }, RETRIES, NON_RETRYABLE_KEYWORDS);
     }
@@ -166,12 +166,14 @@ class GcpClient {
         return projectFromMetadataApi;
     }
 
-    String validateRetrievedZone(String zoneFromMetadataApi) {
-        if ("html>".equals(zoneFromMetadataApi)) {
-            LOGGER.severe("Zone could not be retrieved. Please specify the 'zones' property if running from outside "
-                    + "GCP network");
-            throw new HazelcastException("Zone could not be retrieved from GCP config");
+    List<String> validateRetrievedZones(List<String> zonesFromMetadataApi) {
+        for (String zoneFromMetadataApi : zonesFromMetadataApi) {
+            if ("html>".equals(zoneFromMetadataApi)) {
+                LOGGER.severe("Zone could not be retrieved. Please specify the 'zones' property if running from outside "
+                        + "GCP network");
+                throw new HazelcastException("Zone could not be retrieved from GCP config");
+            }
         }
-        return zoneFromMetadataApi;
+        return zonesFromMetadataApi;
     }
 }

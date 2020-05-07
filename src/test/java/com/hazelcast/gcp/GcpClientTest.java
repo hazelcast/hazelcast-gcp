@@ -269,26 +269,26 @@ public class GcpClientTest {
     }
 
     @Test
-    public void validateRetrievedZone() {
+    public void validateRetrievedZones() {
         // given
         GcpConfig gcpConfig = GcpConfig.builder().build();
         GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
 
         // when
-        String retrievedZone = gcpClient.validateRetrievedZone(ZONE_1);
+        List<String> retrievedZone = gcpClient.validateRetrievedZones(singletonList(ZONE_1));
 
         // then
-        assertEquals(ZONE_1, retrievedZone);
+        assertEquals(singletonList(ZONE_1), retrievedZone);
     }
 
     @Test(expected = HazelcastException.class)
-    public void validateInvalidRetrievedZone() {
+    public void validateInvalidRetrievedZones() {
         // given
         GcpConfig gcpConfig = GcpConfig.builder().build();
         GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
 
         // when
-        gcpClient.validateRetrievedZone(INVALID_ZONE_FROM_METADATA_API);
+        gcpClient.validateRetrievedZones(singletonList(INVALID_ZONE_FROM_METADATA_API));
 
         // then
         // throws exception
