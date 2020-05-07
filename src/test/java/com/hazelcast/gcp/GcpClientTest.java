@@ -48,6 +48,20 @@ public class GcpClientTest {
     private static final GcpAddress ADDRESS_4 = new GcpAddress("10.240.0.5", "35.237.227.149");
     private static final List<GcpAddress> ADDRESSES = asList(ADDRESS_1, ADDRESS_2, ADDRESS_3, ADDRESS_4);
 
+    private static final String gcpConnectionExceptionJson = "{\n" +
+            " \"error\": {\n" +
+            "  \"errors\": [\n" +
+            "   {\n" +
+            "    \"domain\": \"global\",\n" +
+            "    \"reason\": \"insufficientPermissions\",\n" +
+            "    \"message\": \"Insufficient Permission: Request had insufficient authentication scopes.\"\n" +
+            "   }\n" +
+            "  ],\n" +
+            "  \"code\": 403,\n" +
+            "  \"message\": \"Insufficient Permission: Request had insufficient authentication scopes.\"\n" +
+            " }\n" +
+            "}";
+
     @Mock
     private GcpMetadataApi gcpMetadataApi;
     @Mock
@@ -195,6 +209,21 @@ public class GcpClientTest {
 
         // when
         gcpClient.validateRetrievedZone(INVALID_ZONE_FROM_METADATA_API);
+
+        // then
+        // throws exception
+    }
+
+    @Test(expected = GcpConnectionException.class)
+    public void testFetchGcpAddresses() {
+        // given
+        when(gcpComputeApi.instances(CURRENT_PROJECT, CURRENT_ZONE, null, ACCESS_TOKEN)).thenThrow(new RestClientException(gcpConnectionExceptionJson));
+
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        gcpClient.getAddresses();
 
         // then
         // throws exception
