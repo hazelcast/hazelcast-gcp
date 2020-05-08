@@ -43,6 +43,10 @@ public class GcpConnectionException extends RuntimeException {
     private int errorCode;
     private String url;
 
+    public GcpConnectionException() {
+        super("Failure in executing GCP API request");
+    }
+
     public GcpConnectionException(String jsonResponse) {
         super("Failure in executing GCP API request");
 
@@ -80,6 +84,14 @@ public class GcpConnectionException extends RuntimeException {
     }
     public String getUrl() {
         return this.url;
+    }
+
+    public void setGcpMessage(String gcpMessage) {
+        this.gcpMessage = gcpMessage;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public static Boolean getIsGcpConnectionException(String responseString) {

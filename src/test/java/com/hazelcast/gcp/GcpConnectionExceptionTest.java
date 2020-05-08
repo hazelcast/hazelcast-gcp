@@ -16,16 +16,11 @@
 package com.hazelcast.gcp;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GcpConnectionExceptionTest {
     private static final String gcpDomain = "global";
     private static final String gcpReason = "insufficientPermissions";
@@ -58,9 +53,6 @@ public class GcpConnectionExceptionTest {
     public static final String S_GCP_FORMATTED_EXCEPTION_MESSAGE = "Your service account does not have permissions to "
             + "access " + S_GCP_URL + ". Please ensure the API access scope for Compute Engine is at least read-only.";
 
-    @Mock
-    private GcpConnectionException gcpConnectionException;
-
     @Test
     public void testSetFromJson() {
         GcpConnectionException gcpException = new GcpConnectionException(gcpConnectionExceptionJson);
@@ -77,8 +69,9 @@ public class GcpConnectionExceptionTest {
 
     @Test
     public void testGetMessage() {
-        given(gcpConnectionException.getGcpMessage()).willReturn(S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE);
-        given(gcpConnectionException.getUrl()).willReturn(S_GCP_URL);
-        assertEquals(S_GCP_FORMATTED_EXCEPTION_MESSAGE, gcpConnectionException.getMessage());
+        GcpConnectionException gcpException = new GcpConnectionException();
+        gcpException.setGcpMessage(S_GCP_ERROR_INSUFFICIENT_PERMISSION_SCOPE);
+        gcpException.setUrl(S_GCP_URL);
+        assertEquals(S_GCP_FORMATTED_EXCEPTION_MESSAGE, gcpException.getMessage());
     }
 }
