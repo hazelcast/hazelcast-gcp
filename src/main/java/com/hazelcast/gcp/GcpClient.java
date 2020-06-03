@@ -34,8 +34,8 @@ class GcpClient {
 
     private static final int RETRIES = 10;
     private static final List<String> NON_RETRYABLE_KEYWORDS = asList("Private key json file not found",
-            "Your service account does not have permissions", "Project could not be retrieved",
-            "Zone could not be retrieved");
+            "Request had insufficient authentication scopes", "Required 'compute.instances.list' permission",
+            "Project could not be retrieved", "Zone could not be retrieved");
 
     private final GcpMetadataApi gcpMetadataApi;
     private final GcpComputeApi gcpComputeApi;
@@ -97,19 +97,12 @@ class GcpClient {
     }
 
     List<GcpAddress> getAddresses() {
-        try {
-            return RetryUtils.retry(new Callable<List<GcpAddress>>() {
-                @Override
-                public List<GcpAddress> call() {
-                    return fetchGcpAddresses();
-                }
-            }, RETRIES, NON_RETRYABLE_KEYWORDS);
-        } catch (GcpConnectionException e) {
-            if (e.getMessage() != null) {
-                LOGGER.severe(e.getMessage());
+        return RetryUtils.retry(new Callable<List<GcpAddress>>() {
+            @Override
+            public List<GcpAddress> call() {
+                return fetchGcpAddresses();
             }
-            throw e;
-        }
+        }, RETRIES, NON_RETRYABLE_KEYWORDS);
     }
 
     private List<String> fetchZones(String region) {
@@ -128,19 +121,11 @@ class GcpClient {
         List<GcpAddress> result = new ArrayList<GcpAddress>();
         for (final String project : projects) {
             for (final String zone : zones) {
-                try {
-                    LOGGER.finest(String.format("Fetching instances for project '%s' and zone '%s'", project, zone));
-                    List<GcpAddress> addresses = gcpComputeApi.instances(project, zone, label, accessToken);
-                    LOGGER.finest(String.format("Found the following instances for project '%s' and zone '%s': %s", project, zone,
-                            addresses));
-                    result.addAll(addresses);
-                } catch (RestClientException e) {
-                    // Parse exception message and convert to GcpConnectionException if it should be of this type
-                    if (GcpConnectionException.getIsGcpConnectionException(e.getMessage())) {
-                        throw new GcpConnectionException(e.getMessage(), e.getUrl());
-                    }
-                    throw e;
-                }
+                LOGGER.finest(String.format("Fetching instances for project '%s' and zone '%s'", project, zone));
+                List<GcpAddress> addresses = gcpComputeApi.instances(project, zone, label, accessToken);
+                LOGGER.finest(String.format("Found the following instances for project '%s' and zone '%s': %s", project, zone,
+                        addresses));
+                result.addAll(addresses);
             }
         }
         return result;
