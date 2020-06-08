@@ -32,10 +32,9 @@ import static java.util.Collections.singletonList;
 class GcpClient {
     private static final ILogger LOGGER = Logger.getLogger(GcpDiscoveryStrategy.class);
 
-    private static final int RETRIES = 10;
+    private static final int RETRIES = 1;
     private static final List<String> NON_RETRYABLE_KEYWORDS = asList("Private key json file not found",
-            "Request had insufficient authentication scopes", "Required 'compute.instances.list' permission",
-            "Project could not be retrieved", "Zone could not be retrieved");
+            "Request had insufficient authentication scopes", "Required 'compute.instances.list' permission");
 
     private final GcpMetadataApi gcpMetadataApi;
     private final GcpComputeApi gcpComputeApi;
@@ -66,7 +65,7 @@ class GcpClient {
         return singletonList(RetryUtils.retry(new Callable<String>() {
             @Override
             public String call() {
-                return validateRetrievedProject(gcpMetadataApi.currentProject());
+                return gcpMetadataApi.currentProject();
             }
         }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
@@ -91,7 +90,7 @@ class GcpClient {
             @Override
             public List<String> call() {
                 String region = gcpMetadataApi.currentRegion();
-                return validateRetrievedZones(fetchZones(region));
+                return fetchZones(region);
             }
         }, RETRIES, NON_RETRYABLE_KEYWORDS);
     }
@@ -140,25 +139,5 @@ class GcpClient {
 
     String getAvailabilityZone() {
         return gcpMetadataApi.currentZone();
-    }
-
-    String validateRetrievedProject(String projectFromMetadataApi) {
-        if (projectFromMetadataApi.startsWith("<!DOCTYPE html")) {
-            LOGGER.severe("Project name could not be retrieved. Please specify the 'projects' property if running "
-                    + "from outside GCP network");
-            throw new HazelcastException("Project could not be retrieved from GCP config");
-        }
-        return projectFromMetadataApi;
-    }
-
-    List<String> validateRetrievedZones(List<String> zonesFromMetadataApi) {
-        for (String zoneFromMetadataApi : zonesFromMetadataApi) {
-            if ("html>".equals(zoneFromMetadataApi)) {
-                LOGGER.severe("Zone could not be retrieved. Please specify the 'zones' property if running from outside "
-                        + "GCP network");
-                throw new HazelcastException("Zone could not be retrieved from GCP config");
-            }
-        }
-        return zonesFromMetadataApi;
     }
 }
