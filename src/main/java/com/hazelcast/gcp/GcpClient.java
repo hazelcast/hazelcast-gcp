@@ -15,7 +15,6 @@
 
 package com.hazelcast.gcp;
 
-import com.hazelcast.core.HazelcastException;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 
