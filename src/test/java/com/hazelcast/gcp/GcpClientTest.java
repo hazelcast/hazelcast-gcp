@@ -15,7 +15,6 @@
 
 package com.hazelcast.gcp;
 
-import com.hazelcast.core.HazelcastException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -226,5 +225,4 @@ public class GcpClientTest {
         verify(gcpComputeApi).zones(PROJECT_1, REGION, ACCESS_TOKEN);
         verify(gcpComputeApi).zones(PROJECT_2, REGION, ACCESS_TOKEN);
     }
-
 }
