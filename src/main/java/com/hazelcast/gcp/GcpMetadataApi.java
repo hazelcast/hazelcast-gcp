@@ -18,8 +18,6 @@ package com.hazelcast.gcp;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.internal.json.ParseException;
-import com.hazelcast.logging.ILogger;
-import com.hazelcast.logging.Logger;
 
 import static com.hazelcast.gcp.Utils.lastPartOf;
 
@@ -29,8 +27,6 @@ import static com.hazelcast.gcp.Utils.lastPartOf;
  * @see <a href="https://cloud.google.com/appengine/docs/standard/java/accessing-instance-metadata">GCP Instance Metatadata</a>
  */
 class GcpMetadataApi {
-    private static final ILogger LOGGER = Logger.getLogger(GcpMetadataApi.class);
-
     private static final String METADATA_ENDPOINT = "http://metadata.google.internal";
 
     private final String endpoint;
