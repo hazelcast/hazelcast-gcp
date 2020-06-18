@@ -18,8 +18,6 @@ package com.hazelcast.gcp;
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.internal.json.JsonObject;
 import com.hazelcast.core.HazelcastException;
-import com.hazelcast.logging.ILogger;
-import com.hazelcast.logging.Logger;
 
 import java.io.FileNotFoundException;
 import java.util.Base64;
@@ -37,8 +35,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
  * @see <a href="https://developers.google.com/identity/protocols/OAuth2ServiceAccount">Using OAuth 2.0 for Server to Server</a>
  */
 class GcpAuthenticator {
-    private static final ILogger LOGGER = Logger.getLogger(GcpAuthenticator.class);
-
     private static final String GOOGLE_AUTH_ENDPOINT = "https://www.googleapis.com/oauth2/v4/token";
     private static final String SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
@@ -65,9 +61,9 @@ class GcpAuthenticator {
             String response = callService(body);
             return parseResponse(response);
         } catch (FileNotFoundException e) {
-            LOGGER.severe(String.format("Private key json file not found. Please ensure you have stored the json file"
-                    + " at the specified file path: %s", privateKeyPath));
-            throw new HazelcastException("Private key json file not found", e);
+            throw new HazelcastException(String.format("Private key json file not found. "
+                    + "Please ensure you have stored the json file at the specified file path: %s", privateKeyPath)
+                    , e);
         } catch (Exception e) {
             throw new HazelcastException("Error while fetching access token from Google API", e);
         }

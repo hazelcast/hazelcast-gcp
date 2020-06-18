@@ -15,6 +15,7 @@
 
 package com.hazelcast.gcp;
 
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.internal.json.ParseException;
 import com.hazelcast.logging.ILogger;
@@ -71,10 +72,9 @@ class GcpMetadataApi {
         try {
             return Json.parse(accessTokenResponse).asObject().get("access_token").asString();
         } catch (ParseException e) {
-            LOGGER.severe("Unable to retrieve access token. Please grant permissions to this service account if "
-                    + "running from within the GCP network or specify the correct private key file path if running "
-                    + "from outside the GCP.");
-            throw e;
+            throw new HazelcastException("Unable to retrieve access token. Please grant permissions to this "
+                    + "service account if running from within the GCP network or specify the correct private key "
+                    + "file path if running from outside the GCP.", e);
         }
     }
 
