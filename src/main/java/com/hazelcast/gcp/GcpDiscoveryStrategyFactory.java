@@ -16,11 +16,18 @@
 package com.hazelcast.gcp;
 
 import com.hazelcast.config.properties.PropertyDefinition;
+import com.hazelcast.internal.nio.IOUtil;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +38,9 @@ import java.util.Map;
  */
 public class GcpDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
+
+    private static final ILogger LOGGER = Logger.getLogger(AwsDiscoveryStrategyFactory.class);
+    
     @Override
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return GcpDiscoveryStrategy.class;
@@ -51,13 +61,28 @@ public class GcpDiscoveryStrategyFactory
         return result;
     }
 
+    /**
+     * Checks if Hazelcast is running on GCP.
+     * To check if Hazelcast is running on GCP, we first check whether the internal DNS is configured for "google.internal" in 
+     * either "/etc/resolv.conf" or "/etc/hosts". There is a small chance one could make such configuration. Thus, we also make an
+     * API call to "metadata.google.internal" which will resolve to a local, non-routable address http://169.254.169.254/. Finally,
+     * we check if there is a service account attached for this instance, because without a service account Hazelcast GCP discovery 
+     * will not work.
+     *
+     * @return true if running on GCP which has an service account attached
+     * @see https://cloud.google.com/compute/docs/instances/managing-instances#dmi
+     */
     @Override
     public boolean isAutoDetectionApplicable() {
-        return googleInternalDnsConfigured() && metadataFlavorGoogle();
+        return googleInternalDnsConfigured() && metadataFlavorGoogle() && serviceAccountAttached();
     }
 
+    private static boolean googleInternalDnsConfigured() {
+        return readFileContents("/etc/resolv.conf").contains("google.internal") ||
+                readFileContents("/etc/hosts").contains("google.internal");
+    }
 
-    private String readFileContents(String fileName) {
+    static String readFileContents(String fileName) {
         InputStream is = null;
         try {
             File file = new File(fileName);
@@ -71,18 +96,24 @@ public class GcpDiscoveryStrategyFactory
             IOUtil.closeResource(is);
         }
     }
-
-    private boolean googleInternalDnsConfigured() {
-        return readFileContents("/etc/resolv.conf").contains("google.internal") ||
-                readFileContents("/etc/hosts").contains("google.internal");
-    }
-
-    private boolean metadataFlavorGoogle() {
+ 
+    private static boolean metadataFlavorGoogle() {
         return isEndpointAvailable("metadata.google.internal");
+    }   
+
+    private static serviceAccountAttached(){
+        try {
+            return isEndpointAvailable("metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/");
+        } catch (Exception e) {
+            LOGGER.warning("Hazelcast running on GCP instance, but no service account attached. Cannot use Hazelcast GCP discovery.");
+            LOGGER.finest(e);
+            return false;
+        }
     }
 
-    private boolean isEndpointAvailable(String url) {
+    private static boolean isEndpointAvailable(String url) {
         return !RestClient.create(url)
+                .withHeader("Metadata-Flavor", "Google")
                 .get()
                 .isEmpty();
     }
