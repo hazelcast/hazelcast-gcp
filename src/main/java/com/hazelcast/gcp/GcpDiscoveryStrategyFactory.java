@@ -38,8 +38,7 @@ import java.util.Map;
  */
 public class GcpDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
-
-    private static final ILogger LOGGER = Logger.getLogger(AwsDiscoveryStrategyFactory.class);
+    private static final ILogger LOGGER = Logger.getLogger(GcpDiscoveryStrategyFactory.class);
     
     @Override
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
@@ -69,7 +68,7 @@ public class GcpDiscoveryStrategyFactory
      * we check if there is a service account attached for this instance, because without a service account Hazelcast GCP discovery 
      * will not work.
      *
-     * @return true if running on GCP which has a service account attached
+     * @return true if running on GCP Instance which has a service account attached
      * @see https://cloud.google.com/compute/docs/instances/managing-instances#dmi
      */
     @Override
@@ -101,7 +100,7 @@ public class GcpDiscoveryStrategyFactory
         return isEndpointAvailable("metadata.google.internal");
     }   
 
-    private static serviceAccountAttached(){
+    private static boolean serviceAccountAttached(){
         try {
             return isEndpointAvailable("metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/");
         } catch (Exception e) {

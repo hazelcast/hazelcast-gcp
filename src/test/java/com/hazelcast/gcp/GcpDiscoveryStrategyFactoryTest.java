@@ -31,9 +31,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -68,7 +68,6 @@ public class GcpDiscoveryStrategyFactoryTest {
         Iterator<DiscoveryStrategy> strategies = service.getDiscoveryStrategies().iterator();
         return strategies.next();
     }
-
 
     @Test
     public void isEndpointAvailable() {
