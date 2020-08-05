@@ -69,7 +69,7 @@ public class GcpDiscoveryStrategyFactory
      * we check if there is a service account attached for this instance, because without a service account Hazelcast GCP discovery 
      * will not work.
      *
-     * @return true if running on GCP which has an service account attached
+     * @return true if running on GCP which has a service account attached
      * @see https://cloud.google.com/compute/docs/instances/managing-instances#dmi
      */
     @Override
@@ -111,7 +111,7 @@ public class GcpDiscoveryStrategyFactory
         }
     }
 
-    private static boolean isEndpointAvailable(String url) {
+    static boolean isEndpointAvailable(String url) {
         return !RestClient.create(url)
                 .withHeader("Metadata-Flavor", "Google")
                 .get()
