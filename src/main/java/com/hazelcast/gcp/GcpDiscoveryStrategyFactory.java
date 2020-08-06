@@ -62,10 +62,12 @@ public class GcpDiscoveryStrategyFactory
 
     /**
      * Checks if Hazelcast is running on GCP.
+     * <p>
      * To check if Hazelcast is running on GCP, we first check whether the internal DNS is configured for "google.internal" in
-     * either "/etc/resolv.conf" or "/etc/hosts". There is a small chance one could make such configuration. Thus, we also make
+     * either "/etc/resolv.conf" or "/etc/hosts". Such an approach is not officially documented but seems like a good
+     * enough heuristic to detect a GCP Compute VM Instance. Since it's not the official method, we still need to make
      * an API call to "metadata.google.internal" which will resolve to a local, non-routable address http://169.254.169.254/.
-     * Finally, we check if there is a service account attached for this instance, because without a service account Hazelcast
+     * Finally, we check if there is a service account attached for this instance because without a service account Hazelcast
      * GCP discovery will not work.
      *
      * @return true if running on GCP Instance which has a service account attached
