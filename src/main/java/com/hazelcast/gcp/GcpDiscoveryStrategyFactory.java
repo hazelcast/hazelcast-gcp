@@ -97,12 +97,12 @@ public class GcpDiscoveryStrategyFactory
     }
 
     private static boolean metadataFlavorGoogle() {
-        return isEndpointAvailable("metadata.google.internal");
+        return isEndpointAvailable("http://metadata.google.internal");
     }
 
     private static boolean serviceAccountAttached() {
         try {
-            return isEndpointAvailable("metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/");
+            return isEndpointAvailable("http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/");
         } catch (Exception e) {
             LOGGER.warning("Hazelcast running on GCP instance, but no service account attached. Cannot use Hazelcast "
                     + "GCP discovery.");
