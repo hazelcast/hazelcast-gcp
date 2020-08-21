@@ -179,6 +179,23 @@ public class GcpClientTest {
         assertEquals(emptyList(), result);
     }
 
+    @Test(expected = Exception.class)
+    public void getAddressesUnknownException() {
+        // given
+        Label label = null;
+        RestClientException exception = new RestClientException("unknown", 500);
+        given(gcpComputeApi.instances(CURRENT_PROJECT, CURRENT_ZONE, label, ACCESS_TOKEN)).willThrow(exception);
+
+        GcpConfig gcpConfig = GcpConfig.builder().setLabel(label).build();
+        GcpClient gcpClient = new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // when
+        gcpClient.getAddresses();
+
+        // then
+        // throws exception
+    }
+
     @Test
     public void getAvailabilityZone() {
         // given
@@ -262,5 +279,19 @@ public class GcpClientTest {
         // then
         verify(gcpComputeApi).zones(PROJECT_1, REGION, ACCESS_TOKEN);
         verify(gcpComputeApi).zones(PROJECT_2, REGION, ACCESS_TOKEN);
+    }
+
+    @Test(expected = Exception.class)
+    public void setZonesException() {
+        // given
+        GcpConfig gcpConfig = GcpConfig.builder().build();
+        RestClientException exception = new RestClientException("unknown", 500);
+        given(gcpComputeApi.zones(any(), any(), any())).willThrow(exception);
+
+        // when
+        new GcpClient(gcpMetadataApi, gcpComputeApi, gcpAuthenticator, gcpConfig);
+
+        // then
+        // throws exception
     }
 }
