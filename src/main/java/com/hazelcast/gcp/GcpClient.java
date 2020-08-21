@@ -66,7 +66,7 @@ class GcpClient {
             public String call() {
                 return gcpMetadataApi.currentProject();
             }
-        }, RETRIES));
+        }, RETRIES, NON_RETRYABLE_KEYWORDS));
     }
 
     private List<String> zonesFromConfigOrComputeApi(final GcpConfig gcpConfig) {
@@ -77,7 +77,7 @@ class GcpClient {
                 public List<String> call() {
                     return fetchZones(gcpConfig.getRegion());
                 }
-            }, RETRIES);
+            }, RETRIES, NON_RETRYABLE_KEYWORDS);
         }
 
         if (!gcpConfig.getZones().isEmpty()) {
@@ -91,7 +91,7 @@ class GcpClient {
                 String region = gcpMetadataApi.currentRegion();
                 return fetchZones(region);
             }
-        }, RETRIES);
+        }, RETRIES, NON_RETRYABLE_KEYWORDS);
     }
 
     List<GcpAddress> getAddresses() {
