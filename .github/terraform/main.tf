@@ -156,18 +156,33 @@ resource "google_compute_instance" "hazelcast_member" {
       "cd /home/${var.gcp_ssh_user}",
       "chmod 0755 start_gcp_hazelcast_member.sh",
       "./start_gcp_hazelcast_member.sh  ${var.gcp_label_key} ${var.gcp_label_value} ",
-      "sleep 60",
-      "tail -n 20 ./logs/hazelcast.stdout.log"
+      "sleep 5",
     ]
   }
+}
+
+resource "null_resource" "verify_members" {
+  count      = var.member_count
+  depends_on = [google_compute_instance.hazelcast_member]
+  connection {
+    type        = "ssh"
+    user        = var.gcp_ssh_user
+    host        = google_compute_instance.hazelcast_member[count.index].network_interface.0.access_config.0.nat_ip
+    timeout     = "180s"
+    agent       = false
+    private_key = file("${var.local_key_path}/${var.gcp_key_name}")
+  }
+
 
   provisioner "remote-exec" {
     inline = [
       "cd /home/${var.gcp_ssh_user}",
+      "tail -n 20 ./logs/hazelcast.stdout.log",
       "chmod 0755 verify_member_count.sh",
       "sh verify_member_count.sh  ${var.member_count}",
     ]
   }
+
 }
 
 ############## HAZELCAST MANAGEMENT CENTER #######################
@@ -231,7 +246,6 @@ resource "google_compute_instance" "hazelcast_mancenter" {
     inline = [
       "sudo apt-get update",
       "sudo apt-get -y install openjdk-8-jdk wget unzip",
-      "sleep 30"
     ]
   }
 
@@ -240,15 +254,15 @@ resource "google_compute_instance" "hazelcast_mancenter" {
       "cd /home/${var.gcp_ssh_user}",
       "chmod 0755 start_gcp_hazelcast_management_center.sh",
       "./start_gcp_hazelcast_management_center.sh ${var.hazelcast_mancenter_version} ${var.gcp_label_key} ${var.gcp_label_value} ",
-      "sleep 20",
-      "tail -n 20 ./logs/mancenter.stdout.log",
+      "sleep 5",
     ]
   }
 }
 
 resource "null_resource" "verify_mancenter" {
 
-  depends_on = [google_compute_instance.hazelcast_member]
+  depends_on = [google_compute_instance.hazelcast_member, google_compute_instance.hazelcast_mancenter]
+
   connection {
     type        = "ssh"
     user        = var.gcp_ssh_user
@@ -258,10 +272,10 @@ resource "null_resource" "verify_mancenter" {
     private_key = file("${var.local_key_path}/${var.gcp_key_name}")
   }
 
-
   provisioner "remote-exec" {
     inline = [
       "cd /home/${var.gcp_ssh_user}",
+      "tail -n 20 ./logs/mancenter.stdout.log",
       "chmod 0755 verify_mancenter.sh",
       "./verify_mancenter.sh  ${var.member_count}",
     ]
