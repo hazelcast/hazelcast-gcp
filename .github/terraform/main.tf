@@ -156,7 +156,7 @@ resource "google_compute_instance" "hazelcast_member" {
       "cd /home/${var.gcp_ssh_user}",
       "chmod 0755 start_gcp_hazelcast_member.sh",
       "./start_gcp_hazelcast_member.sh  ${var.gcp_label_key} ${var.gcp_label_value} ",
-      "sleep 30",
+      "sleep 60",
       "tail -n 20 ./logs/hazelcast.stdout.log"
     ]
   }
