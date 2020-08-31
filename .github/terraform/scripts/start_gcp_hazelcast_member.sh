@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -x
 
 LABEL_KEY=$1
