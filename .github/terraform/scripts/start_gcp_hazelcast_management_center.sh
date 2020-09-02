@@ -9,6 +9,7 @@ LABEL_VALUE=$3
 mkdir -p ${HOME}/lib
 mkdir -p ${HOME}/logs
 mkdir -p ${HOME}/man
+
 LOG_DIR=${HOME}/logs
 MAN_CENTER_HOME=${HOME}/man
 
@@ -17,7 +18,7 @@ MANCENTER_JAR_URL=https://download.hazelcast.com/management-center/hazelcast-man
 pushd ${HOME}/lib
     echo "Downloading JAR..."
     if wget -q "$MANCENTER_JAR_URL"; then
-        echo "Hazelcast Management JAR downloaded succesfully."
+        echo "Hazelcast Management JAR downloaded successfully."
     else
         echo "Hazelcast Management JAR could NOT be downloaded!"
         exit 1;
