@@ -25,7 +25,6 @@ pushd ${HOME}/lib
     fi
     unzip hazelcast-management-center-${MANCENTER_VERSION}.zip
     cp -R hazelcast-management-center-${MANCENTER_VERSION}/* ./
-
 popd
 
 sed -i -e "s/LABEL_KEY/${LABEL_KEY}/g" ${HOME}/hazelcast-client.yaml

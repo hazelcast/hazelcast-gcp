@@ -104,9 +104,6 @@ jobs:
           name: id_rsa.pub
           known_hosts: " "
 
-      #   - id: plan
-      #     run: cd hazelcast-gcp/terraform && terraform plan
-
       - name: Terraform Apply
         run: |
           cd hazelcast-gcp/.github/terraform  && terraform apply -auto-approve

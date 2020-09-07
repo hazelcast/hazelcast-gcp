@@ -1,4 +1,3 @@
-#
 variable "prefix" {
   type    = string
 }
