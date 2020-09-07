@@ -46,6 +46,7 @@ jobs:
         run: |
           cd hazelcast-gcp
           mvn clean install -DskipTests
+          echo "Hazelcast GCP jar is: " target/hazelcast-gcp-*-SNAPSHOT.jar
           cp target/hazelcast-gcp-*-SNAPSHOT.jar ~/lib/hazelcast-gcp.jar
 
       # DOWNLOAD HAZELCAST JAR WITH VERSION DEFINED IN POM.XML
@@ -60,8 +61,8 @@ jobs:
           else
             wget -q "https://repo1.maven.org/maven2/com/hazelcast/hazelcast/$hz_version/hazelcast-$hz_version.jar"
           fi
+          echo "Hazelcast jar is: " hazelcast*.jar
           cp hazelcast*.jar ~/lib/hazelcast.jar
-          echo "DONE"
 
       #BUILD TERRAFORM
       - name : Set-up Terraform
