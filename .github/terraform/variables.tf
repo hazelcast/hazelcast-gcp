@@ -50,7 +50,7 @@ variable "gcp_instance_type" {
 
 variable "gcp_label_key" {
   type = string
-  default = "hz-guide"
+  default = "integration-test"
 }
 
 variable "gcp_label_value" {

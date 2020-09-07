@@ -9,7 +9,7 @@ zone   = "us-central1-c"
 
 member_count      = "2"
 gcp_instance_type = "f1-micro"
-gcp_label_key = "hz-guide"
+gcp_label_key = "integration-test"
 gcp_label_value = "terraform"
 
 hazelcast_mancenter_version = "4.2020.08"

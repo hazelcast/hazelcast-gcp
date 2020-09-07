@@ -27,8 +27,8 @@ resource "google_service_account" "service_account" {
 }
 
 resource "google_project_iam_custom_role" "discovery_role" {
-  role_id     = "HazelcastGuideDiscoveryRole"
-  title       = "Discovery Role for Hazelcast Guides"
+  role_id     = "HazelcastGcpIntegrationTest"
+  title       = "Discovery Role for hazelcast-gcp Integration tests"
   permissions = ["compute.instances.list", "compute.zones.list", "compute.regions.get"]
 }
 
