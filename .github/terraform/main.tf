@@ -23,7 +23,7 @@ provider "google" {
 
 resource "google_service_account" "service_account" {
   account_id   = "${var.prefix}-sa"
-  display_name = "Service Account for Hazelcast Terraform Guide"
+  display_name = "Service Account for Hazelcast-gcp Integration Test"
 }
 
 resource "random_id" "id" {
