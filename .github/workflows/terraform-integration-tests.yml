@@ -49,6 +49,23 @@ jobs:
           echo "Hazelcast GCP jar is: " target/hazelcast-gcp-*-SNAPSHOT.jar
           cp target/hazelcast-gcp-*-SNAPSHOT.jar ~/lib/hazelcast-gcp.jar
 
+      # FIND LATEST MANAGEMENT CENTER VERSION
+      - uses: actions/checkout@v2.3.4
+        with:
+          path: management-center-docker
+          repository: hazelcast/management-center-docker 
+          fetch-depth: 0
+
+      - name: Find latest management center version
+        run: |
+          cd management-center-docker
+          FILTERED_TAGS=$(git tag --list "v*" |  grep -E -v '.*(BETA|-).*' )
+          LATEST_TAG=$((IFS=$'\n' && echo "${FILTERED_TAGS[*]}") | sort | tail -n 1)
+          echo $LATEST_TAG
+
+          sed -i -e "s/SET_MANAGEMENT_CENTER_VERSION/\"${LATEST_TAG:1}\"/g" ../hazelcast-gcp/.github/terraform/terraform.tfvars
+
+
       # DOWNLOAD HAZELCAST JAR WITH VERSION DEFINED IN POM.XML
       - name: Download latest Hazelcast version
         run: |
