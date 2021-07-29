@@ -1,3 +1,6 @@
+#### **DEPRECATED:** `hazelcast-gcp` plugin has been merged with [`hazelcast`](https://github.com/hazelcast/hazelcast)!
+Since version `5.0` `hazelcast` includes `hazelcast-gcp` and does not require additional dependency. For details about running Hazelcast on GCP consider the [documentation](https://docs.hazelcast.com/hazelcast/5.0-SNAPSHOT/deploy/deploying-on-gcp.html).
+
 # Hazelcast Discovery Plugin for GCP
 
 This repository contains a plugin which provides the automatic Hazelcast member discovery in the Google Cloud Platform (Compute Engine) environment.
